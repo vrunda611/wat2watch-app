@@ -448,13 +448,12 @@
             try {
                 let movies;
                 
-                if (customMood) {
-                    // Use AI for custom mood analysis
-                    button.textContent = 'AI is analyzing your mood...';
-                    movies = await getAIRecommendations(customMood);
+               if (customMood) {
+                // Use smart fallback for custom mood
+                movies = getSmartFallbackRecommendations(customMood);
                 } else {
-                    // For selected mood, use genre mapping
-                    movies = await getMoviesByGenre(selectedMood);
+                // For selected mood, use genre mapping
+                movies = await getMoviesByGenre(selectedMood);
                 }
                 
                 displayMovies(movies);
