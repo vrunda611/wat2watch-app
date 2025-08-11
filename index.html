@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wat2watch - Find Your Perfect Movie</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 80px;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 400;
+            color: white;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        /* Mood Selection */
+        .mood-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 40px;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .mood-button {
+            background: white;
+            border: none;
+            border-radius: 25px;
+            padding: 16px 20px;
+            color: #000;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 50px;
+        }
+
+        .mood-button:hover {
+            background: #f0f0f0;
+            transform: scale(1.02);
+        }
+
+        .mood-button:active {
+            transform: scale(0.98);
+        }
+
+        .mood-button.selected {
+            background: #333;
+            color: white;
+        }
+
+        .mood-emoji {
+            font-size: 1.2rem;
+        }
+
+        /* Custom Input Section */
+        .custom-section {
+            margin-top: 60px;
+        }
+
+        .or-text {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .custom-input {
+            width: 100%;
+            max-width: 320px;
+            padding: 16px 20px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            border: none;
+            border-radius: 25px;
+            outline: none;
+            color: #000;
+            margin-bottom: 40px;
+        }
+
+        .custom-input::placeholder {
+            color: #999;
+        }
+
+        /* Get Recommendations Button */
+        .recommend-button {
+            background: white;
+            color: #000;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .recommend-button:hover {
+            background: #f0f0f0;
+            transform: scale(1.02);
+        }
+
+        .recommend-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            margin-top: 60px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .movie-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .movie-card {
+            background: #111;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+            transition: all 0.2s ease;
+            border: 1px solid #222;
+        }
+
+        .movie-poster-container {
+            width: 100%;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 2/3;
+        }
+
+        .movie-poster-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .movie-card:hover {
+            background: #1a1a1a;
+            transform: translateY(-2px);
+        }
+
+        .movie-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .movie-genre {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .movie-description {
+            color: #ccc;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+        }
+
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .movie-rating {
+            color: #ffd700;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .streaming-platforms {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .platform {
+            background: #333;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 15px;
+            }
+            
+            .mood-grid {
+                max-width: 280px;
+                gap: 12px;
+            }
+            
+            .mood-button {
+                padding: 14px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .custom-input {
+                max-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">Pick Your Vibe</h1>
+        </div>
+
+        <!-- Mood Selection Grid -->
+        <div class="mood-grid">
+            <button class="mood-button" onclick="selectMood('spooky', this)">
+                <span class="mood-emoji">👻</span>
+                Spooky
+            </button>
+            <button class="mood-button" onclick="selectMood('holiday', this)">
+                <span class="mood-emoji">🎃</span>
+                Holiday
+            </button>
+            <button class="mood-button" onclick="selectMood('celebratory', this)">
+                <span class="mood-emoji">🎉</span>
+                Celebratory
+            </button>
+            <button class="mood-button" onclick="selectMood('calm', this)">
+                <span class="mood-emoji">🤍</span>
+                Calm
+            </button>
+            <button class="mood-button" onclick="selectMood('funny', this)">
+                <span class="mood-emoji">😂</span>
+                Funny
+            </button>
+            <button class="mood-button" onclick="selectMood('cozy', this)">
+                <span class="mood-emoji">🍄</span>
+                Cozy
+            </button>
+            <button class="mood-button" onclick="selectMood('wholesome', this)">
+                <span class="mood-emoji">💗</span>
+                Wholesome
+            </button>
+            <button class="mood-button" onclick="selectMood('witchy', this)">
+                <span class="mood-emoji">🕯️</span>
+                Witchy
+            </button>
+            <button class="mood-button" onclick="selectMood('gloomy', this)">
+                <span class="mood-emoji">☁️</span>
+                Gloomy
+            </button>
+            <button class="mood-button" onclick="selectMood('hopeful', this)">
+                <span class="mood-emoji">😇</span>
+                Hopeful
+            </button>
+            <button class="mood-button" onclick="selectMood('lucky', this)" style="grid-column: 1 / -1; max-width: 150px; margin: 0 auto;">
+                <span class="mood-emoji">🌙</span>
+                Lucky
+            </button>
+        </div>
+
+        <!-- Custom Input Section -->
+        <div class="custom-section">
+            <p class="or-text">Or describe your mood</p>
+            <input 
+                type="text" 
+                class="custom-input" 
+                placeholder="e.g., feeling nostalgic, want something mind-bending, need a good cry..."
+                id="customMood"
+            >
+            
+            <button class="recommend-button" onclick="getRecommendations()">
+                Get Recommendations
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <h2 class="results-title">Perfect Matches</h2>
+            <div class="movie-grid" id="movieGrid">
+                <!-- Sample movie cards -->
+                <div class="movie-card">
+                    <h3 class="movie-title">The Grand Budapest Hotel</h3>
+                    <div class="movie-genre">Comedy • Drama</div>
+                    <p class="movie-description">A legendary concierge at a famous European hotel between the wars and his protégé become involved in a story involving a stolen painting.</p>
+                    <div class="movie-meta">
+                        <div class="movie-rating">⭐ 8.1 IMDB</div>
+                    </div>
+                    <div class="streaming-platforms">
+                        <span class="platform">Netflix</span>
+                        <span class="platform">Hulu</span>
+                    </div>
+                </div>
+                
+                <div class="movie-card">
+                    <h3 class="movie-title">Hereditary</h3>
+                    <div class="movie-genre">Horror • Mystery</div>
+                    <p class="movie-description">A grieving family is haunted by tragedy and disturbing secrets in this psychological horror masterpiece.</p>
+                    <div class="movie-meta">
+                        <div class="movie-rating">⭐ 7.3 IMDB</div>
+                    </div>
+                    <div class="streaming-platforms">
+                        <span class="platform">Prime</span>
+                        <span class="platform">Apple TV</span>
+                    </div>
+                </div>
+
+                <div class="movie-card">
+                    <h3 class="movie-title">Paddington 2</h3>
+                    <div class="movie-genre">Family • Adventure</div>
+                    <p class="movie-description">Paddington, now happily settled with the Brown family, picks up a series of odd jobs to buy the perfect present for his Aunt Lucy's birthday.</p>
+                    <div class="movie-meta">
+                        <div class="movie-rating">⭐ 8.0 IMDB</div>
+                    </div>
+                    <div class="streaming-platforms">
+                        <span class="platform">HBO Max</span>
+                        <span class="platform">Disney+</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'f1fe03ebf07117d8b9d3a7d75d6391e0';
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+        
+        let selectedMood = '';
+
+        // Mood to genre mapping
+        const moodToGenres = {
+            'spooky': [27], // Horror
+            'holiday': [35, 10751], // Comedy, Family
+            'celebratory': [35, 10402], // Comedy, Music
+            'calm': [18, 10749], // Drama, Romance
+            'funny': [35], // Comedy
+            'cozy': [10749, 18], // Romance, Drama
+            'wholesome': [10751, 16], // Family, Animation
+            'witchy': [14, 9648], // Fantasy, Mystery
+            'gloomy': [18, 53], // Drama, Thriller
+            'hopeful': [18, 10751], // Drama, Family
+            'lucky': [12, 14] // Adventure, Fantasy
+        };
+
+        function selectMood(mood, button) {
+            selectedMood = mood;
+            
+            // Remove selected class from all buttons
+            document.querySelectorAll('.mood-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked button
+            button.classList.add('selected');
+            
+            // Clear custom input
+            document.getElementById('customMood').value = '';
+        }
+
+        async function getRecommendations() {
+            const customMood = document.getElementById('customMood').value;
+            const finalMood = customMood || selectedMood;
+            
+            if (!finalMood) {
+                alert('Please select a mood or describe how you\'re feeling!');
+                return;
+            }
+
+            // Add loading state to button
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Finding matches...';
+            button.style.opacity = '0.7';
+            
+            try {
+                let movies;
+                
+                if (customMood) {
+                    // Use AI for custom mood analysis
+                    button.textContent = 'AI is analyzing your mood...';
+                    movies = await getAIRecommendations(customMood);
+                } else {
+                    // For selected mood, use genre mapping
+                    movies = await getMoviesByGenre(selectedMood);
+                }
+                
+                displayMovies(movies);
+                
+                // Show results
+                const resultsSection = document.getElementById('resultsSection');
+                resultsSection.classList.add('show');
+                
+                // Smooth scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+            } catch (error) {
+                console.error('Error fetching movies:', error);
+                alert('Sorry, there was an error getting recommendations. Please try again!');
+            } finally {
+                button.textContent = originalText;
+                button.style.opacity = '1';
+            }
+        }
+
+        // Sample movie data as fallback with working poster URLs
+        const sampleMovies = {
+            'spooky': [
+                {
+                    title: "Hereditary",
+                    overview: "A grieving family is haunted by tragedy and disturbing secrets.",
+                    vote_average: 7.3,
+                    release_date: "2018-06-08",
+                    poster_path: "https://picsum.photos/300/450?random=1"
+                },
+                {
+                    title: "The Conjuring",
+                    overview: "Paranormal investigators help a family terrorized by a dark presence.",
+                    vote_average: 7.5,
+                    release_date: "2013-07-19",
+                    poster_path: "https://picsum.photos/300/450?random=2"
+                },
+                {
+                    title: "Get Out",
+                    overview: "A young African-American visits his white girlfriend's parents for the weekend.",
+                    vote_average: 7.7,
+                    release_date: "2017-02-24",
+                    poster_path: "https://picsum.photos/300/450?random=3"
+                }
+            ],
+            'funny': [
+                {
+                    title: "Superbad",
+                    overview: "Two co-dependent high school seniors are forced to deal with separation anxiety.",
+                    vote_average: 7.6,
+                    release_date: "2007-08-17",
+                    poster_path: "https://picsum.photos/300/450?random=4"
+                },
+                {
+                    title: "The Grand Budapest Hotel",
+                    overview: "A legendary concierge and his protégé become involved with a stolen painting.",
+                    vote_average: 8.1,
+                    release_date: "2014-03-28",
+                    poster_path: "https://picsum.photos/300/450?random=5"
+                },
+                {
+                    title: "Knives Out",
+                    overview: "A detective investigates the death of a patriarch of an eccentric family.",
+                    vote_average: 7.9,
+                    release_date: "2019-11-27",
+                    poster_path: "https://picsum.photos/300/450?random=6"
+                }
+            ],
+            'cozy': [
+                {
+                    title: "You've Got Mail",
+                    overview: "Two business rivals fall in love through email correspondence.",
+                    vote_average: 6.7,
+                    release_date: "1998-12-18",
+                    poster_path: "https://picsum.photos/300/450?random=7"
+                },
+                {
+                    title: "The Holiday",
+                    overview: "Two women swap homes and find love in unexpected places.",
+                    vote_average: 6.9,
+                    release_date: "2006-12-08",
+                    poster_path: "https://picsum.photos/300/450?random=8"
+                },
+                {
+                    title: "Little Women",
+                    overview: "The March sisters navigate love, loss, and growing up during the Civil War.",
+                    vote_average: 7.8,
+                    release_date: "2019-12-25",
+                    poster_path: "https://picsum.photos/300/450?random=9"
+                }
+            ],
+            'holiday': [
+                {
+                    title: "Home Alone",
+                    overview: "An eight-year-old troublemaker must protect his house from a pair of burglars.",
+                    vote_average: 7.4,
+                    release_date: "1990-11-16",
+                    poster_path: "https://picsum.photos/300/450?random=10"
+                },
+                {
+                    title: "Elf",
+                    overview: "After discovering he is a human, a man raised as an elf at the North Pole decides to travel to New York.",
+                    vote_average: 7.0,
+                    release_date: "2003-11-07",
+                    poster_path: "https://picsum.photos/300/450?random=11"
+                },
+                {
+                    title: "Love Actually",
+                    overview: "Follows the lives of eight very different couples dealing with their love lives.",
+                    vote_average: 7.6,
+                    release_date: "2003-11-20",
+                    poster_path: "https://picsum.photos/300/450?random=12"
+                }
+            ],
+            'celebratory': [
+                {
+                    title: "The Greatest Showman",
+                    overview: "Celebrates the birth of show business and tells of a visionary who rose from nothing.",
+                    vote_average: 7.6,
+                    release_date: "2017-12-20",
+                    poster_path: "https://picsum.photos/300/450?random=13"
+                },
+                {
+                    title: "Mamma Mia!",
+                    overview: "A bride-to-be tries to find her real father told through hit songs by ABBA.",
+                    vote_average: 6.9,
+                    release_date: "2008-07-10",
+                    poster_path: "https://picsum.photos/300/450?random=14"
+                }
+            ],
+            'wholesome': [
+                {
+                    title: "Paddington",
+                    overview: "A young Peruvian bear travels to London in search of a home.",
+                    vote_average: 7.2,
+                    release_date: "2014-11-28",
+                    poster_path: "https://picsum.photos/300/450?random=15"
+                },
+                {
+                    title: "The Princess Bride",
+                    overview: "A bedridden boy's grandfather reads him the story of a farmboy-turned-pirate.",
+                    vote_average: 7.7,
+                    release_date: "1987-09-25",
+                    poster_path: "https://picsum.photos/300/450?random=16"
+                }
+            ]
+        };
+
+        async function getMoviesByGenre(mood) {
+            try {
+                // Try the API first
+                const genres = moodToGenres[mood] || [18];
+                const genreParam = genres.join(',');
+                
+                const response = await fetch(
+                    `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${genreParam}&sort_by=popularity.desc&vote_average.gte=6&page=1`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.results.slice(0, 6);
+                } else {
+                    throw new Error('API request failed');
+                }
+            } catch (error) {
+                console.log('API failed, using sample data:', error.message);
+                // Fallback to sample data
+                return sampleMovies[mood] || sampleMovies['funny'] || [];
+            }
+        }
+
+        async function getAIRecommendations(moodText) {
+            try {
+                // Call our serverless function instead of OpenAI directly
+                const response = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ moodText })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const recommendations = data.recommendations;
+                
+                // Convert to our movie format
+                return recommendations.map(movie => ({
+                    title: movie.title,
+                    overview: `${movie.description} ${movie.reason}`,
+                    vote_average: movie.rating,
+                    release_date: `${movie.year}-01-01`,
+                    poster_path: `https://picsum.photos/300/450?random=${Math.floor(Math.random() * 1000)}`
+                }));
+
+            } catch (error) {
+                console.error('AI recommendation error:', error);
+                // Enhanced fallback based on mood keywords
+                return getSmartFallbackRecommendations(moodText);
+            }
+        }
+
+        function getSmartFallbackRecommendations(moodText) {
+            const mood = moodText.toLowerCase();
+            
+            // Smart keyword matching for fallbacks
+            if (mood.includes('stress') || mood.includes('work') || mood.includes('laugh')) {
+                return sampleMovies['funny'] || [];
+            } else if (mood.includes('nostalgic') || mood.includes('childhood') || mood.includes('simpler')) {
+                return sampleMovies['wholesome'] || [];
+            } else if (mood.includes('cry') || mood.includes('emotional') || mood.includes('cathartic')) {
+                return [
+                    {
+                        title: "Inside Out",
+                        overview: "Perfect for when you need a good cry but want to feel better afterward. Explores emotions in a beautiful, healing way.",
+                        vote_average: 8.1,
+                        release_date: "2015-06-19",
+                        poster_path: "https://picsum.photos/300/450?random=201"
+                    },
+                    {
+                        title: "A Monster Calls",
+                        overview: "A deeply emotional film about grief and healing that provides cathartic release through beautiful storytelling.",
+                        vote_average: 7.5,
+                        release_date: "2016-10-07",
+                        poster_path: "https://picsum.photos/300/450?random=202"
+                    }
+                ];
+            } else if (mood.includes('cozy') || mood.includes('rainy') || mood.includes('comfort')) {
+                return sampleMovies['cozy'] || [];
+            } else if (mood.includes('existential') || mood.includes('deep') || mood.includes('meaning')) {
+                return [
+                    {
+                        title: "Her",
+                        overview: "A thoughtful exploration of connection, loneliness, and what it means to be human in the modern world.",
+                        vote_average: 8.0,
+                        release_date: "2013-12-18",
+                        poster_path: "https://picsum.photos/300/450?random=203"
+                    },
+                    {
+                        title: "Eternal Sunshine of the Spotless Mind",
+                        overview: "A mind-bending journey through memory and love that will leave you contemplating existence and relationships.",
+                        vote_average: 8.3,
+                        release_date: "2004-03-19",
+                        poster_path: "https://picsum.photos/300/450?random=204"
+                    }
+                ];
+            } else {
+                // Default to cozy movies for unrecognized moods
+                return sampleMovies['cozy'] || [];
+            }
+        }
+
+        function displayMovies(movies) {
+            const movieGrid = document.getElementById('movieGrid');
+            
+            if (movies.length === 0) {
+                movieGrid.innerHTML = '<p style="color: #666; text-align: center; grid-column: 1 / -1;">No movies found for your mood. Try a different vibe!</p>';
+                return;
+            }
+            
+            movieGrid.innerHTML = movies.map(movie => {
+                // Handle both API response format and sample data format
+                const posterUrl = movie.poster_path 
+                    ? (movie.poster_path.startsWith('http') 
+                        ? movie.poster_path 
+                        : `${IMAGE_BASE_URL}${movie.poster_path}`)
+                    : 'https://via.placeholder.com/300x450/333/fff?text=No+Poster';
+                
+                const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
+                const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+                
+                return `
+                    <div class="movie-card">
+                        <div class="movie-poster-container">
+                            <img src="${posterUrl}" alt="${movie.title}" class="movie-poster-img" />
+                        </div>
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <div class="movie-genre">${releaseYear}</div>
+                        <p class="movie-description">${movie.overview || 'No description available.'}</p>
+                        <div class="movie-meta">
+                            <div class="movie-rating">⭐ ${rating} TMDB</div>
+                        </div>
+                        <div class="streaming-platforms">
+                            <span class="platform">Check Streaming</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
