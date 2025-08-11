@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/recommend.js": {
-      "runtime": "@vercel/node@18.x"
-    }
-  }
-}
